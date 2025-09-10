@@ -1,6 +1,6 @@
-const API_URL = 'https://api.mail.tm';
-
-let authToken = '';
+const API_URL = 'https://www.1secmail.com/api/v1/';
+let emailLogin = '';
+let emailDomain = '';
 let emailAddress = '';
 
 // Генерация случайной строки
@@ -17,64 +17,31 @@ function copyToClipboard(text, btn) {
     });
 }
 
-// Создание аккаунта
+// Создание email
 async function createAccount() {
     const generateBtn = document.getElementById('generateBtn');
     generateBtn.disabled = true;
     generateBtn.innerText = 'Создаём...';
 
     try {
-        // 1. Получаем доступные домены
-        const domainsRes = await fetch(`${API_URL}/domains`);
-        if (!domainsRes.ok) throw new Error('Не удалось получить домены');
+        // 1. Доступные домены
+        const domains = ["1secmail.com", "1secmail.net", "1secmail.org"];
+        
+        // 2. Генерация логина и домена
+        emailLogin = randomString(10);
+        emailDomain = domains[Math.floor(Math.random() * domains.length)];
+        emailAddress = `${emailLogin}@${emailDomain}`;
 
-        const domains = await domainsRes.json();
-        const domain = domains['hydra:member'][0].domain;
-
-        // 2. Генерируем данные
-        const localPart = randomString(10);
-        const password = randomString(12);
-        const fullEmail = `${localPart}@${domain}`;
-
-        // 3. Создаём аккаунт
-        const accountRes = await fetch(`${API_URL}/accounts`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                address: fullEmail,
-                password: password
-            })
-        });
-
-        if (!accountRes.ok) {
-            const err = await accountRes.json();
-            throw new Error(err.message || 'Ошибка создания аккаунта');
-        }
-
-        // 4. Получаем токен
-        const tokenRes = await fetch(`${API_URL}/token`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                address: fullEmail,
-                password: password
-            })
-        });
-
-        const tokenData = await tokenRes.json();
-        authToken = tokenData.token;
-        emailAddress = fullEmail;
-
-        // 5. Отображаем данные
-        document.getElementById('emailAddress').innerText = fullEmail;
-        document.getElementById('emailPassword').innerText = password;
+        // 3. Отображаем email
+        document.getElementById('emailAddress').innerText = emailAddress;
+        document.getElementById('emailPassword').innerText = "— (не нужен)";
         document.getElementById('emailBox').classList.remove('hidden');
 
-        // 6. Вешаем обработчики копирования
-        document.getElementById('copyEmail').onclick = () => copyToClipboard(fullEmail, document.getElementById('copyEmail'));
-        document.getElementById('copyPass').onclick = () => copyToClipboard(password, document.getElementById('copyPass'));
+        // 4. Копирование
+        document.getElementById('copyEmail').onclick = () => copyToClipboard(emailAddress, document.getElementById('copyEmail'));
+        document.getElementById('copyPass').onclick = () => copyToClipboard("нет пароля", document.getElementById('copyPass'));
 
-        // 7. Загружаем письма
+        // 5. Загружаем письма
         loadMessages();
         setInterval(loadMessages, 5000);
 
@@ -89,36 +56,35 @@ async function createAccount() {
 
 // Загрузка писем
 async function loadMessages() {
-    if (!authToken) return;
+    if (!emailLogin || !emailDomain) return;
 
     try {
-        const res = await fetch(`${API_URL}/messages`, {
-            headers: { 'Authorization': `Bearer ${authToken}` }
-        });
-
-        if (!res.ok) throw new Error('Не удалось загрузить письма');
-
+        // Список писем
+        const res = await fetch(`${API_URL}?action=getMessages&login=${emailLogin}&domain=${emailDomain}`);
         const data = await res.json();
         const messagesDiv = document.getElementById('messages');
 
-        if (!data['hydra:member'] || data['hydra:member'].length === 0) {
+        if (!data || data.length === 0) {
             messagesDiv.innerHTML = '<p>📭 Нет новых писем.</p>';
             return;
         }
 
         messagesDiv.innerHTML = '';
-        data['hydra:member'].reverse().forEach(msg => {
+        for (let msg of data.reverse()) {
+            // Загружаем полное письмо
+            const mailRes = await fetch(`${API_URL}?action=readMessage&login=${emailLogin}&domain=${emailDomain}&id=${msg.id}`);
+            const mailData = await mailRes.json();
+
             const div = document.createElement('div');
             div.className = 'message';
-            const date = new Date(msg.createdAt).toLocaleString('ru-RU');
             div.innerHTML = `
-                <h4>${msg.subject || 'Без темы'}</h4>
-                <p><strong>📤 От:</strong> ${msg.from?.address || 'Аноним'}</p>
-                <p><strong>📅 Дата:</strong> ${date}</p>
-                <p><strong>📝 Текст:</strong> ${msg.intro ? msg.intro.substring(0, 150) + (msg.intro.length > 150 ? '...' : '') : 'Нет текста'}</p>
+                <h4>${mailData.subject || 'Без темы'}</h4>
+                <p><strong>📤 От:</strong> ${mailData.from || 'Аноним'}</p>
+                <p><strong>📅 Дата:</strong> ${mailData.date}</p>
+                <p><strong>📝 Текст:</strong> ${mailData.textBody ? mailData.textBody.substring(0, 150) + (mailData.textBody.length > 150 ? '...' : '') : 'Нет текста'}</p>
             `;
             messagesDiv.appendChild(div);
-        });
+        }
 
     } catch (err) {
         console.error('Ошибка загрузки писем:', err);
