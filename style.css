@@ -1,7 +1,7 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 
 body {
-  font-family: 'Segoe UI', sans-serif;
+  font-family:'Segoe UI',sans-serif;
   background: linear-gradient(135deg,#6e8efb,#a777e3);
   min-height:100vh; padding:20px; color:#333;
 }
@@ -21,23 +21,28 @@ h1 { font-size:2.5rem; margin-bottom:10px; }
 }
 .btn-generate:hover { background:#0056b3; }
 
-.box { margin-top:30px; padding:25px; background:#f9f9ff; border-radius:12px; text-align:left; }
-.hidden { display:none; }
+.hidden{display:none;}
+.box {
+  margin-top:30px; padding:25px; background:#f9f9ff; border-radius:12px;
+  text-align:left;
+}
 
 .email-display {
   display:flex; align-items:center; gap:10px;
   font-size:1.2rem; font-weight:500; margin:15px 0;
 }
 
-.btn-copy { background:#eee; border:1px solid #ccc; border-radius:4px; padding:5px 10px; cursor:pointer; }
-.btn-copy:hover { background:#ddd; }
+.btn-copy { background:#eee; border:1px solid #ccc; border-radius:4px;
+  padding:5px 10px; cursor:pointer; }
+.btn-copy:hover { background:#ddd;}
 
-#messages { margin-top:20px; min-height:100px; }
+#messages { margin-top:20px; min-height:80px; }
 .message {
   padding:15px; margin-bottom:15px; background:#fff;
-  border-left:4px solid #007bff; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,.05);
+  border-left:4px solid #007bff; border-radius:8px;
+  box-shadow:0 2px 5px rgba(0,0,0,.05);
 }
 .message h4 { margin:0 0 8px; color:#222; }
 .message p { margin:5px 0; color:#555; font-size:.95rem; }
 
-footer { text-align:center; margin-top:50px; color:#fff; }
+footer { text-align:center; margin-top:40px; color:#fff; }
