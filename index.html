@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OneClickInbox — Почта за 1 клик</title>
+    <meta name="description" content="Создайте временный email за один клик. Смотрите письма онлайн. Бесплатно и без регистрации.">
+    <meta property="og:title" content="OneClickInbox — Temporary Email in One Click">
+    <meta property="og:description" content="Create disposable email instantly. View messages live. No registration.">
+    <meta property="og:image" content="https://via.placeholder.com/1200x630?text=OneClickInbox+Preview">
+    <meta property="og:url" content="https://oneclickinbox.vercel.app">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📬 OneClickInbox</h1>
+        <p class="subtitle">Временная почта за один клик. Без регистрации.</p>
+
+        <button id="generateBtn" class="btn-generate">Создать почту →</button>
+
+        <div id="emailBox" class="hidden box">
+            <h3>📧 Ваш временный email:</h3>
+            <div class="email-display">
+                <span id="emailAddress"></span>
+                <button id="copyEmail" class="btn-copy">📋</button>
+            </div>
+            <p><small>🔑 Пароль: <span id="emailPassword"></span> <button id="copyPass" class="btn-copy">📋</button></small></p>
+
+            <hr>
+
+            <h3>📩 Входящие письма:</h3>
+            <div id="messages">Загрузка писем...</div>
+        </div>
+    </div>
+
+    <footer>
+        <p>OneClickInbox — Open Source проект. MIT License.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
