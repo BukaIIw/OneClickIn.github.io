@@ -28,11 +28,13 @@ async function createMailbox() {
     expiresAt = data.expiresAt;
 
     document.getElementById('emailAddress').innerText = emailAddress;
-    document.getElementById('expiresAt').innerText = new Date(expiresAt).toLocaleString('ru-RU');
+    document.getElementById('expiresAt').innerText =
+      new Date(expiresAt).toLocaleString('ru-RU');
     document.getElementById('emailBox').classList.remove('hidden');
 
     // Кнопка копирования
-    document.getElementById('copyEmail').onclick = () => copyToClipboard(emailAddress, document.getElementById('copyEmail'));
+    document.getElementById('copyEmail').onclick =
+      () => copyToClipboard(emailAddress, document.getElementById('copyEmail'));
 
     // Загружаем письма
     loadMessages();
@@ -54,35 +56,37 @@ async function loadMessages() {
 
   try {
     let res = await fetch(`${API_URL}/${mailboxId}/messages`);
-    if (!res.ok) throw new Error("Ошибка загрузки");
-    let list = await res.json();
+    if (!res.ok) {
+      box.innerHTML = "<p>⚠️ Не удалось загрузить письма</p>";
+      return;
+    }
 
-    if (!list.length) {
+    let list = await res.json();
+    if (!Array.isArray(list) || list.length === 0) {
       box.innerHTML = "<p>📭 Нет новых писем</p>";
       return;
     }
 
     box.innerHTML = "";
-
     for (let msg of list.reverse()) {
       let div = document.createElement('div');
       div.className = "message";
       div.innerHTML = `
         <h4>${msg.subject || "Без темы"}</h4>
         <p><b>📤 От:</b> ${msg.from || "Аноним"}</p>
-        <p><b>📅 Дата:</b> ${msg.date || ""}</p>
-        <p><b>📝 Текст:</b> ${msg.intro || "Нет текста"}</p>
+        <p><b>📅:</b> ${msg.date || ""}</p>
+        <p><b>📝:</b> ${msg.intro || ""}</p>
       `;
       box.appendChild(div);
     }
 
   } catch (err) {
-    box.innerHTML = "<p>⚠ Ошибка загрузки</p>";
+    box.innerHTML = "<p>⚠️ Ошибка соединения с API</p>";
     console.error(err);
   }
 }
 
-// Старт
+// Запуск только после загрузки DOM
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById('generateBtn').addEventListener('click', createMailbox);
 });
